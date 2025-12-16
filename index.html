@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cybercrime Alert</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  background: black;
+  font-family: monospace;
+  overflow: hidden;
+}
+
+/* START SCREEN */
+#start {
+  position: fixed;
+  inset: 0;
+  background: black;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 26px;
+  z-index: 10;
+  text-align: center;
+}
+
+button {
+  margin-top: 20px;
+  padding: 15px 30px;
+  font-size: 22px;
+  background: #00ff00;
+  color: black;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* MATRIX RAIN */
+canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+}
+
+/* FOREGROUND ALERT & LOGS */
+#ui {
+  position: fixed;
+  inset: 0;
+  padding: 20px;
+  z-index: 2;
+}
+
+#alert {
+  font-size: 32px;
+  font-weight: bold;
+  color: #ff0000; /* flashing red */
+  animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+#log {
+  margin-top: 20px;
+  font-size: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="start">
+  You won click Here!<br><br>
+  Tap to continue
+  <button id="startBtn">Click </button>
+</div>
+
+<canvas id="matrix"></canvas>
+
+<div id="ui" style="display:none">
+  <div id="alert">SYSTEM COMPROMISED</div>
+  <div id="log"></div>
+</div>
+
+<audio id="alarm" loop>
+  <source src="https://www.soundjay.com/misc/sounds/emergency-alarm-01.mp3">
+</audio>
+
+<script>
+/* ---------- MATRIX SETUP ---------- */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const letters = "01";
+const fontSize = 18;
+const columns = Math.floor(canvas.width / fontSize);
+const drops = Array(columns).fill(1);
+
+function drawMatrix() {
+  ctx.fillStyle = "rgba(0,0,0,0.3)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#00ff00"; // GREEN 01
+  ctx.font = fontSize + "px monospace";
+
+  for (let i = 0; i < drops.length; i++) {
+    const text = letters[Math.floor(Math.random() * letters.length)];
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+      drops[i] = 0;
+    }
+    drops[i]++;
+  }
+}
+
+/* ---------- TERMINAL TEXT ---------- */
+const lines = [
+  "Connecting to remote server...",
+  "Bypassing security layer...",
+  "Accessing device metadata",
+  "Extracting contacts",
+  "Uploading photos",
+  "Tracking live location",
+  "DATA LEAK IN PROGRESS",
+  "WARNING: UNAUTHORIZED ACCESS DETECTED",
+  "SYSTEM INTEGRITY COMPROMISED",
+  "ROOT ACCESS GRANTED",
+  "ENCRYPTION BREACHED",
+  "PASSWORDS EXFILTRATED",
+  "CREDENTIALS LEAKED",
+  "NETWORK INFILTRATION ACTIVE",
+  "ALL DATA IS VULNERABLE"
+];
+
+let lineIndex = 0;
+
+/* ---------- START DEMO ---------- */
+document.getElementById("startBtn").onclick = async () => {
+  // FULLSCREEN MOBILE SAFE
+  if (document.documentElement.requestFullscreen) {
+    await document.documentElement.requestFullscreen();
+  }
+
+  document.getElementById("start").style.display = "none";
+  document.getElementById("ui").style.display = "block";
+
+  // Play siren
+  document.getElementById("alarm").play();
+
+  // Start matrix animation
+  setInterval(drawMatrix, 35);
+
+  // Show terminal lines + vibration
+  const log = document.getElementById("log");
+  setInterval(() => {
+    if (lineIndex < lines.length) {
+      // Color important lines red or orange
+      const dangerousLines = [
+        "WARNING",
+        "SYSTEM INTEGRITY COMPROMISED",
+        "ROOT ACCESS GRANTED",
+        "ENCRYPTION BREACHED",
+        "PASSWORDS EXFILTRATED",
+        "CREDENTIALS LEAKED",
+        "DATA LEAK IN PROGRESS",
+        "NETWORK INFILTRATION ACTIVE",
+        "ALL DATA IS VULNERABLE"
+      ];
+
+      let content = lines[lineIndex];
+      let color = "white";
+      for (const keyword of dangerousLines) {
+        if (content.includes(keyword)) {
+          color = "#ff9900"; // orange for danger lines
+          break;
+        }
+      }
+
+      log.innerHTML += `<span style="color:${color}">&gt; ${content}</span><br>`;
+
+      // LONGER vibration
+      if (navigator.vibrate) navigator.vibrate([400,100,400]);
+
+      lineIndex++;
+    }
+  }, 900);
+};
+</script>
+
+</body>
+</html>
